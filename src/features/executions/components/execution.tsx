@@ -135,12 +135,32 @@ export const ExecutionView = ({ executionId }: { executionId: string }) => {
                     </div>
                 )}
                 {execution.output && (
-                    <div className="mt-6 p-4 rounded-md space-y-3">
-                        <div>
-                            <p className="text-sm font-medium mb-2">
-                                Output
+                    <div className="mt-6 space-y-4">
+                        {typeof execution.output === "object" && execution.output !== null && (
+                            <div className="space-y-4">
+                                {Object.entries(execution.output as Record<string, any>).map(([key, val]) => {
+                                    if (val?.aiResponse) {
+                                        return (
+                                            <div key={key} className="p-4 bg-muted/30 border rounded-lg space-y-2">
+                                                <p className="text-sm font-semibold text-foreground">
+                                                    {key} (AI Response)
+                                                </p>
+                                                <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed bg-background p-4 rounded-md border font-sans">
+                                                    {val.aiResponse}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })}
+                            </div>
+                        )}
+
+                        <div className="p-4 bg-muted/20 border rounded-lg space-y-2">
+                            <p className="text-sm font-medium text-muted-foreground">
+                                Raw Output (JSON)
                             </p>
-                            <pre className="text-sm font-mono overflow-auto mt-2 p-2 rounded">
+                            <pre className="text-xs font-mono whitespace-pre-wrap break-all overflow-auto p-3 bg-muted/50 rounded-md max-h-96">
                                 {JSON.stringify(execution.output, null, 2)}
                             </pre>
                         </div>
