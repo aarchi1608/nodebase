@@ -1,5 +1,7 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import {zodResolver} from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,6 +39,15 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 export function RegisterForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const error = searchParams.get("error");
+        if (error) {
+            toast.error(`Authentication error: ${error.replace(/_/g, " ")}`);
+        }
+    }, [searchParams]);
+
     const form = useForm<RegisterFormValues>({
     resolver : zodResolver(registerSchema),
     defaultValues : {
@@ -50,11 +61,11 @@ export function RegisterForm() {
             name : values.email  , 
             password : values.password,
             email : values.email,
-            callbackURL : "/",
+            callbackURL : "/workflows",
         },
         {
             onSuccess : () => {
-                router.push("/")
+                router.push("/workflows");
             },
             onError : (ctx) => {
                 toast.error(ctx.error.message);
@@ -65,11 +76,11 @@ export function RegisterForm() {
     const signInGithub = async () => {
        const data = await authClient.signIn.social({
             provider : "github",
-            callbackURL : "/",
+            callbackURL : "/workflows",
         },
         {
             onSuccess : () => {
-                router.push("/")
+                router.push("/workflows")
             },
             onError : (ctx) => {
                 if (ctx.error.message?.includes("not found")) {
@@ -84,11 +95,11 @@ export function RegisterForm() {
     const signInGoogle = async () => {
        const data = await authClient.signIn.social({
             provider : "google",
-            callbackURL : "/",
+            callbackURL : "/workflows",
         },
         {
             onSuccess : () => {
-                router.push("/")
+                router.push("/workflows")
             },
             onError : (ctx) => {
                 if (ctx.error.message?.includes("not found")) {

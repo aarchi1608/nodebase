@@ -1,8 +1,11 @@
+import { Suspense } from "react";
 import { RegisterForm } from "@/features/auth/components/registration-form";
 const Page = () => {
     return (
         <div>
-            <RegisterForm />
+            <Suspense fallback={null}>
+                <RegisterForm />
+            </Suspense>
         </div>
     );
 }
