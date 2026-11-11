@@ -72,7 +72,11 @@ export function RegisterForm() {
                 router.push("/")
             },
             onError : (ctx) => {
-                toast.error(ctx.error.message)
+                if (ctx.error.message?.includes("not found")) {
+                    toast.error("GitHub login is not configured in .env. Please use Email and Password.");
+                } else {
+                    toast.error(ctx.error.message);
+                }
             },
         }
     );
@@ -87,7 +91,11 @@ export function RegisterForm() {
                 router.push("/")
             },
             onError : (ctx) => {
-                toast.error(ctx.error.message)
+                if (ctx.error.message?.includes("not found")) {
+                    toast.error("Google login is not configured in .env. Please use Email and Password.");
+                } else {
+                    toast.error(ctx.error.message);
+                }
             },
         }
     );

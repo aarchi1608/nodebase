@@ -83,7 +83,7 @@ export const AnthropicExecutor : NodeExecutor<AnthropicData> = async ({
    });
 
    try {
-        const { text } = await step.ai.wrap("anthropic generate text", generateText , {
+        const aiResult = await step.ai.wrap("anthropic generate text", generateText , {
             model : anthropic(data.model || "claude-3-5-sonnet-20241022"),
             system : systemPrompt,
             prompt : userPrompt,
@@ -94,6 +94,14 @@ export const AnthropicExecutor : NodeExecutor<AnthropicData> = async ({
             },
         });
 
+        const anyResult = aiResult as any;
+        const text: string =
+            anyResult.text ||
+            anyResult._output ||
+            anyResult.steps?.[0]?.content?.find((c: any) => c.type === "text")?.text ||
+            anyResult.steps?.[0]?.text ||
+            "";
+
         await publish(
             anthropicChannel().status({
                 nodeId,
@@ -103,7 +111,7 @@ export const AnthropicExecutor : NodeExecutor<AnthropicData> = async ({
 
         return {
             ...context,
-            [data.variableName] : {aiResponse : text || ""},
+            [data.variableName] : {aiResponse : text},
         }
    } catch (error) {
     await publish(

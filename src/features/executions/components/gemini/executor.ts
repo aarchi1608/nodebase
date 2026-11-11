@@ -83,7 +83,7 @@ export const GeminiExecutor : NodeExecutor<GeminiData> = async ({
    });
 
    try {
-        const { text } = await step.ai.wrap("gemini generate text", generateText , {
+        const aiResult = await step.ai.wrap("gemini generate text", generateText , {
             model : google(data.model || "gemini-3.8-flash"),
             system : systemPrompt,
             prompt : userPrompt,
@@ -94,6 +94,14 @@ export const GeminiExecutor : NodeExecutor<GeminiData> = async ({
             },
         });
 
+        const anyResult = aiResult as any;
+        const text: string =
+            anyResult.text ||
+            anyResult._output ||
+            anyResult.steps?.[0]?.content?.find((c: any) => c.type === "text")?.text ||
+            anyResult.steps?.[0]?.text ||
+            "";
+
         await publish(
             geminiChannel().status({
                 nodeId,
@@ -103,7 +111,7 @@ export const GeminiExecutor : NodeExecutor<GeminiData> = async ({
 
         return {
             ...context,
-            [data.variableName] : {aiResponse : text || ""},
+            [data.variableName] : {aiResponse : text},
         }
    } catch (error) {
     await publish(

@@ -83,7 +83,7 @@ export const OpenAIExecutor : NodeExecutor<OpenAIData> = async ({
    });
 
    try {
-        const { text } = await step.ai.wrap("openai generate text", generateText , {
+        const aiResult = await step.ai.wrap("openai generate text", generateText , {
             model : openai(data.model || "gpt-4o"),
             system : systemPrompt,
             prompt : userPrompt,
@@ -94,6 +94,14 @@ export const OpenAIExecutor : NodeExecutor<OpenAIData> = async ({
             },
         });
 
+        const anyResult = aiResult as any;
+        const text: string =
+            anyResult.text ||
+            anyResult._output ||
+            anyResult.steps?.[0]?.content?.find((c: any) => c.type === "text")?.text ||
+            anyResult.steps?.[0]?.text ||
+            "";
+
         await publish(
             openaiChannel().status({
                 nodeId,
@@ -103,7 +111,7 @@ export const OpenAIExecutor : NodeExecutor<OpenAIData> = async ({
 
         return {
             ...context,
-            [data.variableName] : {aiResponse : text || ""},
+            [data.variableName] : {aiResponse : text},
         }
    } catch (error) {
     await publish(
