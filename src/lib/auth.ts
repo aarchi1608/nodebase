@@ -5,7 +5,21 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db"
 if (process.env.BETTER_AUTH_URL && !process.env.BETTER_AUTH_URL.startsWith("http")) {
   process.env.BETTER_AUTH_URL = `https://${process.env.BETTER_AUTH_URL}`;
-} else if (!process.env.BETTER_AUTH_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+}
+
+// Auto-correct if BETTER_AUTH_URL was accidentally set to unassigned placeholder "nodebase.vercel.app"
+if (
+  process.env.BETTER_AUTH_URL?.includes("nodebase.vercel.app") &&
+  !process.env.BETTER_AUTH_URL?.includes("nodebase-")
+) {
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    process.env.BETTER_AUTH_URL = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  } else {
+    process.env.BETTER_AUTH_URL = "https://nodebase-alpha-two.vercel.app";
+  }
+}
+
+if (!process.env.BETTER_AUTH_URL && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
   process.env.BETTER_AUTH_URL = `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
 } else if (!process.env.BETTER_AUTH_URL && process.env.VERCEL_URL) {
   process.env.BETTER_AUTH_URL = `https://${process.env.VERCEL_URL}`;
@@ -24,6 +38,8 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "https://*.vercel.app",
+    "https://nodebase-alpha-two.vercel.app",
+    "https://nodebase-aarchi6.vercel.app",
     ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
     ...(process.env.NEXT_PUBLIC_APP_URL ? [process.env.NEXT_PUBLIC_APP_URL] : []),
     ...(process.env.VERCEL_PROJECT_PRODUCTION_URL ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`] : []),
