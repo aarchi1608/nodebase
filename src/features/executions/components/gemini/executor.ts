@@ -84,14 +84,19 @@ export const GeminiExecutor : NodeExecutor<GeminiData> = async ({
 
    try {
         const validModels = [
+            "gemini-3.8-flash",
             "gemini-3.5-flash-lite",
             "gemini-3.5-flash",
             "gemini-1.5-flash",
             "gemini-1.5-pro",
         ];
-        let resolvedModel = data.model || "gemini-3.5-flash-lite";
-        if (!validModels.includes(resolvedModel) || resolvedModel.includes("2.0") || resolvedModel.includes("3.8") || resolvedModel.includes("3.1")) {
+        let resolvedModel = data.model || "gemini-3.8-flash";
+        if (resolvedModel === "gemini-2.0-flash") {
+            resolvedModel = "gemini-3.8-flash";
+        } else if (resolvedModel === "gemini-2.0-flash-lite") {
             resolvedModel = "gemini-3.5-flash-lite";
+        } else if (!validModels.includes(resolvedModel)) {
+            resolvedModel = "gemini-3.8-flash";
         }
 
         const aiResult = await step.ai.wrap("gemini generate text", generateText , {
