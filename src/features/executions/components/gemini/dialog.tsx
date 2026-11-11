@@ -2,11 +2,10 @@
 import z from "zod";
 
 export const AVAILABLE_MODELS = [
-    "gemini-2.0-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
     "gemini-1.5-flash",
     "gemini-1.5-pro",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-8b",
 ] as const;
 
 const formSchema = z.object({
