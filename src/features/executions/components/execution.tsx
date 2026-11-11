@@ -205,15 +205,6 @@ export const ExecutionView = ({ executionId }: { executionId: string }) => {
                                 })}
                             </div>
                         )}
-
-                        <div className="p-4 bg-muted/20 border rounded-lg space-y-2">
-                            <p className="text-sm font-medium text-muted-foreground">
-                                Raw Output (JSON)
-                            </p>
-                            <pre className="text-xs font-mono whitespace-pre-wrap break-all overflow-auto p-3 bg-muted/50 rounded-md max-h-96">
-                                {JSON.stringify(execution.output, null, 2)}
-                            </pre>
-                        </div>
                     </div>
                 )}
             </CardContent>
