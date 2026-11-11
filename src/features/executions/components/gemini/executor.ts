@@ -83,8 +83,11 @@ export const GeminiExecutor : NodeExecutor<GeminiData> = async ({
    });
 
    try {
+        const validModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite", "gemini-1.5-flash-8b"];
+        const resolvedModel = data.model && validModels.includes(data.model) ? data.model : "gemini-2.0-flash";
+
         const aiResult = await step.ai.wrap("gemini generate text", generateText , {
-            model : google(data.model || "gemini-3.8-flash"),
+            model : google(resolvedModel),
             system : systemPrompt,
             prompt : userPrompt,
             experimental_telemetry : {
@@ -113,13 +116,23 @@ export const GeminiExecutor : NodeExecutor<GeminiData> = async ({
             ...context,
             [data.variableName] : {aiResponse : text},
         }
-   } catch (error) {
+   } catch (error: any) {
     await publish(
         geminiChannel().status({
             nodeId,
             status : "error",
         }),
     );
+    if (
+        error?.status === 404 ||
+        error?.status === 400 ||
+        error?.status === 401 ||
+        error?.status === 403 ||
+        error?.message?.includes("not found") ||
+        error?.message?.includes("API key")
+    ) {
+        throw new NonRetriableError(error.message || "Gemini execution error");
+    }
     throw error;
 }
 };
